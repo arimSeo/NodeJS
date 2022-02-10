@@ -2,11 +2,18 @@
 const express = require("express"); //express설치해서 사용가능
 const app = express(); //app에 사용할 express함수 불러오기
 const port = 3000;
+const bodyParser =require('body-parser');
+const { User } =require("./models/User");
+
+//application/x-www-form-urlencoded 형태로 된 데이터를 분석해서 가져오기 위해
+app.use(bodyParser.urlencoded({extended:true}));
+//json타입으로 된 데이터를 분석해서 가져오기 위해
+app.use(bodyParser.json());
 
 const mongoose = require("mongoose");
 mongoose
   .connect(
-    "mongodb+srv://arimSeo:<password>@cluster0.im4ee.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+    "mongodb+srv://arimSeo:1234@cluster0.im4ee.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
     // {
     //   useNewUrlParser: true,
     //   useUnindifiedTopology: true,
@@ -17,9 +24,26 @@ mongoose
   .then(() => console.log("MongoDB connected..."))
   .catch((err) => console.log(err));
 
+//get 메소드
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
+
+//회원가입을 위한 route 만들기
+//post 메소드
+app.post('/register',(req,res)=>{  //end point: '/register' , callback function: (req,res)
+  //회원가입시 필요한 정보들을 client에서 가져오면 -> DB에 넣어주기!
+  
+  const user =new User(req.body)  //body-parser가 이용되어 client에서 보낸 정보를 받아줌(request)
+
+  user.save((err,userInfo)=>{
+    if(err) return res.json({sucess: false, err})
+    return res.status(200).json({
+      sucess:true
+    })
+  })
+})
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
