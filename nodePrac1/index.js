@@ -3,6 +3,8 @@ const express = require("express"); //express설치해서 사용가능
 const app = express(); //app에 사용할 express함수 불러오기
 const port = 3000;
 const bodyParser =require('body-parser');
+const config = require('./config/key');   //config폴더 내 key.js파일 찾아가기 변수선언
+
 const { User } =require("./models/User");
 
 //application/x-www-form-urlencoded 형태로 된 데이터를 분석해서 가져오기 위해
@@ -12,15 +14,7 @@ app.use(bodyParser.json());
 
 const mongoose = require("mongoose");
 mongoose
-  .connect(
-    "mongodb+srv://arimSeo:1234@cluster0.im4ee.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
-    // {
-    //   useNewUrlParser: true,
-    //   useUnindifiedTopology: true,
-    //   useCreateIndex: true,
-    //   unFindAndModify: false,
-    // }
-  )
+  .connect(config.mongoURI)
   .then(() => console.log("MongoDB connected..."))
   .catch((err) => console.log(err));
 
