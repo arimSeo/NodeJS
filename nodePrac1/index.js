@@ -26,7 +26,7 @@ mongoose
 
 //get 메소드
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Hello World! nodemon추가해서 자동변경 업데이트 되지롱");
 });
 
 //회원가입을 위한 route 만들기
