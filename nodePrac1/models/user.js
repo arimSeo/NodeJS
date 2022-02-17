@@ -35,6 +35,29 @@ const userSchema = mongoose.Schema({
   }
 });
 
+//
+const bcrypt = require('bcrypt');  //bycrypt 모듈 불러오기
+const saltRounds=10   //salt(암호화된 비밀번호)가 몇 자리 인지
+
+//유저 모델을 저장(.save)하기 전에 function{ } 을 실행 
+//next : 파라미터 
+userSchema.pre('save', function( next ){
+    var user=this;  //위에 스키마 값들을 가리킴
+
+    if(user.isModified('password')){   //다른 데이터들 변경시에 비밀번호가 같이 계속 새로 암호화되지 않도록
+        // 비밀번호 암호화
+        bcrypt.genSalt(saltRounds, function(err, salt){
+            if(err) return next(err)
+
+            bcrypt.hash(user.password, salt, function(err,hash){
+                if(err) return next(err)
+                user.password=hash  //hash(암호화된)비밀번호로 기존거를 변경
+            })
+        })
+        next()  //함수 실행 -> index.js에 .save부분 실행
+    }
+})
+
 //스키마를 모델로 감싸주기 .model('모델명',스키마이름)
 const User = mongoose.model('User',userSchema)
 //User모델을 외부에서 쓸 수 있도록 export 하기 

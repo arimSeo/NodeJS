@@ -23,13 +23,14 @@ app.get("/", (req, res) => {
   res.send("Hello World! nodemon추가해서 자동변경 업데이트 되지롱");
 });
 
-//회원가입을 위한 route 만들기
+//회원가입을 위한 register route 만들기
 //post 메소드
 app.post('/register',(req,res)=>{  //end point: '/register' , callback function: (req,res)
   //회원가입시 필요한 정보들을 client에서 가져오면 -> DB에 넣어주기!
   
   const user =new User(req.body)  //body-parser가 이용되어 client에서 보낸 정보를 받아줌(request)
 
+  //save하기 전에 비밀번호 암호화! 
   user.save((err,userInfo)=>{
     if(err) return res.json({sucess: false, err})
     return res.status(200).json({
