@@ -37,7 +37,7 @@ const userSchema = mongoose.Schema({
 
 //
 const bcrypt = require('bcrypt');  //bycrypt 모듈 불러오기
-const saltRounds=10   //salt(암호화된 비밀번호)가 몇 자리 인지
+const saltRounds=10 
 
 //유저 모델을 저장(.save)하기 전에 function{ } 을 실행 
 //next : 파라미터 
@@ -52,11 +52,41 @@ userSchema.pre('save', function( next ){
             bcrypt.hash(user.password, salt, function(err,hash){
                 if(err) return next(err)
                 user.password=hash  //hash(암호화된)비밀번호로 기존거를 변경
+                next()  //함수 실행 -> index.js에 .save부분 실행
             })
         })
-        next()  //함수 실행 -> index.js에 .save부분 실행
+    }
+    //다른 user 정보 수정했을때
+    else{
+        next()
     }
 })
+
+userSchema.methods.comparePassword = function(plainPassword, cb) {
+    // plainPassword :입력한 비밀번호
+    bcrypt.compare(plainPassword, this.password, function(err, isMatch){
+        if(err) return cb(err);
+            cb(null, isMatch)   //일치한다면, callback error가 null이고 isMatch엔 true가 됨
+    })
+}
+
+//token만들기
+const jwt = require('jsonwebtoken');  //jsonwebtoken가져오기 (=import)
+
+userSchema.methods.generateToken = function(cb){
+    var user =this  //ES5 문법
+    //jsonwebtoken을 이용해 token 생성
+    var token= jwt.sign(user._id.toHexString(), 'secretToken')  
+    //token= user._id + 'secretToken' 
+    //'secretToken'으로 user._id를 알 수 있음
+    
+    user.token =token
+    user.save(function(err,user){
+        if(err) return cb(err);
+        cb(null, user)  //err없을때 user정보 반환
+    })
+}
+
 
 //스키마를 모델로 감싸주기 .model('모델명',스키마이름)
 const User = mongoose.model('User',userSchema)
