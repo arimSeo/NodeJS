@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
 
 //회원가입을 위한 register route 만들기
 //post 메소드
-app.post('/register',(req,res)=>{  //end point: '/register' , callback function: (req,res)
+app.post('/api/users/register',(req,res)=>{  //end point: '/register' , callback function: (req,res)
   //회원가입시 필요한 정보들을 client에서 가져오면 -> DB에 넣어주기!
   
   const user =new User(req.body)  //body-parser가 이용되어 client에서 보낸 정보를 받아줌(request)
@@ -42,7 +42,7 @@ app.post('/register',(req,res)=>{  //end point: '/register' , callback function:
 })
 
 //로그인을 위한 login route
-app.post('/login',(req,res)=>{
+app.post('/api/users/login',(req,res)=>{
     // 1.요청된 이메일을 DB에 있는지 찾기
     User.findOne({ email: req.body.email }, (err,user)=>{
       if(!user) {
@@ -71,6 +71,21 @@ app.post('/login',(req,res)=>{
           })
       })
     })
+})
+
+const {auth} =require('./middleware/auth');
+app.get('/api/users/auth', auth, (req,res) =>{  //auth : middleware폴더내 auth.js에서 받아옴
+
+  //여기까지 middleware통과 했다면 Authentication이 true 라는 말
+  res.status(200).json({
+    _id: req.user._id,
+    isAdmin: req.user.role === 0? false : true,  //role이 0이면 일반유저, 0이 아니면 관리자
+    isAuth: true,
+    email: req.user.email,
+    name: req.user.name,
+    role: req.user.role,
+    image: req.user.image
+  })
 })
 
 
